@@ -4,6 +4,43 @@ import React, { useCallback, useState } from 'react'
 import { createEditor, Editor, Transforms, Text } from 'slate'
 import { Slate, Editable, withReact } from 'slate-react'
 
+// Defining custom set of helpers rather than built-in Editor helpers
+const CustomEditor = {
+    isBoldMarkActive(editor) {
+        const [match] = Editor.nodes(editor, {
+            match: n => n.bold === true,
+            universal: true,
+        })
+        return !!match
+    },
+    isCodeBlockActive(editor) {
+        // Check whether any of the currently selected blocks are code blocks
+        const [match] = Editor.nodes(editor, {
+            match: n => n.type === 'code',
+        })
+        return !!match
+    },
+    toggleBoldMark(editor) {
+        const isActive = CustomEditor.isBoldMarkActive(editor)
+        // Apply it to text nodes, splitting the nodes up
+        // if selection is overlapping only a bit
+        Transforms.setNodes(
+            editor,
+            { bold: isActive ? null : true },
+            { match: n => Text.isText(n), split: true }
+        )
+    },
+    toggleCodeBlock(editor) {
+        // toggle block type depending on whether there's already a match
+        const isActive = CustomEditor.isCodeBlockActive(editor)
+        Transforms.setNodes(
+            editor,
+            { type: isActive ? null : 'code' },
+            { match: n => Editor.isBlock(editor, n) }
+        )
+    }
+}
+
 
 const initialValue = [
     {
@@ -56,8 +93,27 @@ const App = () => {
     }, [])
 
     return (
+        // Add a toolbar with buttons that call the same methods
         // Add the editable component inside the context
         <Slate editor={editor} value={initialValue} >
+            <div>
+                <button
+                    onMouseDown={event => {
+                        event.preventDefault()
+                        CustomEditor.toggleBoldMark(editor)
+                    }}
+                >
+                    Bold
+                </button>
+                <button
+                    onMouseDown={event => {
+                        event.preventDefault()
+                        CustomEditor.toggleCodeBlock(editor)
+                    }}
+                >
+                    Code Block
+                </button>
+            </div>
             <Editable
                 renderElement={renderElement}
                 renderLeaf={renderLeaf}
@@ -69,33 +125,16 @@ const App = () => {
                         case '`': {
                             // prevent ' from being inserted
                             event.preventDefault()
-                            // Check whether any of the currently selected blocks are code blocks
-                            const [match] = Editor.nodes(editor, {
-                                match: n => n.type === 'code',
-                            })
-
-                            // toggle block type depending on whether there's already a match
-                            Transforms.setNodes(
-                                editor,
-                                { type: match ? 'paragraph' : 'code' },
-                                { match: n => Editor.isBlock(editor, n) }
-                            )
+                            CustomEditor.toggleCodeBlock(editor)
                             break
                         }
                         // when "b" is pressed bold our text selection
                         case 'b': {
                             event.preventDefault()
-                            Transforms.setNodes(
-                                editor,
-                                { bold: true },
-                                // Apply it to text nodes, splitting the nodes up
-                                // if selection is overlapping only a bit
-                                { match: n => Text.isText(n), split: true }
-                            )
+                            CustomEditor.toggleBoldMark(editor)
                             break
                         }
                     }
-                    console.log(event.key)
                 }}
             />
         </Slate>
