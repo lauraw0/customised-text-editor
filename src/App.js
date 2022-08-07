@@ -1,8 +1,31 @@
 // Import React dependencies
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useMemo } from 'react'
 // Import the Slate editor factory, 'Editor' and 'Transforms' helpers
 import { createEditor, Editor, Transforms, Text } from 'slate'
+// import { Node } from 'slate'
 import { Slate, Editable, withReact } from 'slate-react'
+
+
+// A serializing function that takes a value and returns a string.
+// const serialize = value => {
+//     return (
+//         value
+//             // Return the string content of each paragraph in the value's children
+//             .map(n => Node.string(n))
+//             // join each paragraph with a new line
+//             .join('\n')
+//     )
+// }
+
+// A deserializing function that takes a string and returns a value.
+// const deserialize = value => {
+//     // Return a value array of children derived by splitting the string
+//     return string.split('\n').map(line => {
+//         return {
+//             children: [{ text: line }],
+//         }
+//     })
+// }
 
 // Defining custom set of helpers rather than built-in Editor helpers
 const CustomEditor = {
@@ -41,14 +64,6 @@ const CustomEditor = {
     }
 }
 
-
-const initialValue = [
-    {
-        type: 'paragraph',
-        children: [{ text: 'wowee starter text for slate js' }]
-    }
-]
-
 // Adding renderers for code blocks
 const CodeElement = (props) => {
     return (
@@ -77,6 +92,25 @@ const App = () => {
     // This Slate editor object won't change across renders as we don't set it
     const [editor] = useState(() => withReact(createEditor()))
 
+    // If we are not using JSON format but instead serializing into plain text
+    // const initialValue = useMemo(
+    //     deserialize(localStorage.getItem('content')) || '',
+    //     []
+    // )
+
+    // Update the initial content to be pulled from Local Storage if it exists.
+    const initialValue = useMemo(
+        () =>
+            JSON.parse(localStorage.getItem('content')) ||
+            [
+                {
+                    type: 'paragraph',
+                    children: [{ text: 'Start typing here to test text editor' }]
+                }
+            ],
+        []
+    )
+
     // Rendering function based on the element passed to 'props'
     // 'useCallback' memoizes the function for subsequent renders.
     const renderElement = useCallback(props => {
@@ -95,7 +129,23 @@ const App = () => {
     return (
         // Add a toolbar with buttons that call the same methods
         // Add the editable component inside the context
-        <Slate editor={editor} value={initialValue} >
+        <Slate
+            editor={editor}
+            value={initialValue}
+            onChange={value => {
+                const isAstChange = editor.operations.some(
+                    op => 'set_selection' !== op.type
+                )
+                if (isAstChange) {
+                    // If we attempt to serialize into plain text
+                    // localStorage.setItem('content', serialize(value))
+
+                    // Save value to Local Storage.
+                    const content = JSON.stringify(value)
+                    localStorage.setItem('content', content)
+                }
+            }}
+        >
             <div>
                 <button
                     onMouseDown={event => {
@@ -132,6 +182,11 @@ const App = () => {
                         case 'b': {
                             event.preventDefault()
                             CustomEditor.toggleBoldMark(editor)
+                            break
+                        }
+                        case 'Delete': {
+                            event.preventDefault()
+                            localStorage.clear()
                             break
                         }
                     }
