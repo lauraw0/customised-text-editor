@@ -1,9 +1,10 @@
 // Import React dependencies
 import React, { useCallback, useState, useMemo } from 'react'
 // Import the Slate editor factory, 'Editor' and 'Transforms' helpers
-import { createEditor, Editor, Transforms, Text } from 'slate'
+import { createEditor } from 'slate'
 // import { Node } from 'slate'
 import { Slate, Editable, withReact } from 'slate-react'
+import CustomEditor from './CustomEditor'
 
 
 // A serializing function that takes a value and returns a string.
@@ -27,43 +28,6 @@ import { Slate, Editable, withReact } from 'slate-react'
 //     })
 // }
 
-// Defining custom set of helpers rather than built-in Editor helpers
-const CustomEditor = {
-    isBoldMarkActive(editor) {
-        const [match] = Editor.nodes(editor, {
-            match: n => n.bold === true,
-            universal: true,
-        })
-        return !!match
-    },
-    isCodeBlockActive(editor) {
-        // Check whether any of the currently selected blocks are code blocks
-        const [match] = Editor.nodes(editor, {
-            match: n => n.type === 'code',
-        })
-        return !!match
-    },
-    toggleBoldMark(editor) {
-        const isActive = CustomEditor.isBoldMarkActive(editor)
-        // Apply it to text nodes, splitting the nodes up
-        // if selection is overlapping only a bit
-        Transforms.setNodes(
-            editor,
-            { bold: isActive ? null : true },
-            { match: n => Text.isText(n), split: true }
-        )
-    },
-    toggleCodeBlock(editor) {
-        // toggle block type depending on whether there's already a match
-        const isActive = CustomEditor.isCodeBlockActive(editor)
-        Transforms.setNodes(
-            editor,
-            { type: isActive ? null : 'code' },
-            { match: n => Editor.isBlock(editor, n) }
-        )
-    }
-}
-
 // Adding renderers for code blocks
 const CodeElement = (props) => {
     return (
@@ -82,7 +46,10 @@ const DefaultElement = props => {
 
 const Leaf = props => {
     return (
-        <span {...props.attributes} style={{ fontWeight: props.leaf.bold ? 'bold' : 'normal' }}>
+        <span {...props.attributes} style={{
+            fontWeight: props.leaf.bold ? 'bold' : 'normal',
+            fontStyle: props.leaf.italics ? 'italic' : 'normal'
+        }}>
             {props.children}
         </span>
     )
@@ -182,6 +149,11 @@ const App = () => {
                         case 'b': {
                             event.preventDefault()
                             CustomEditor.toggleBoldMark(editor)
+                            break
+                        }
+                        case 'i': {
+                            event.preventDefault()
+                            CustomEditor.toggleItalicsMark(editor)
                             break
                         }
                         case 'Delete': {
