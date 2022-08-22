@@ -38,6 +38,45 @@ const CodeElement = (props) => {
         </pre>
     )
 }
+// Adding renderers for code blocks
+const LeftAlign = (props) => {
+    return (
+        // attributes that will be rendered on the top-most element of your blocks
+        <pre {...props.attributes}>
+            <div style={{
+                textAlign: 'left'
+            }}>
+                {props.children}
+            </div>
+        </pre>
+    )
+}
+// Adding renderers for code blocks
+const MiddleAlign = (props) => {
+    return (
+        // attributes that will be rendered on the top-most element of your blocks
+        <pre {...props.attributes}>
+            <div style={{
+                textAlign: 'center'
+            }}>
+                {props.children}
+            </div>
+        </pre>
+    )
+}
+// Adding renderers for code blocks
+const RightAlign = (props) => {
+    return (
+        // attributes that will be rendered on the top-most element of your blocks
+        <pre {...props.attributes}>
+            <div style={{
+                textAlign: 'right'
+            }}>
+                {props.children}
+            </div>
+        </pre>
+    )
+}
 const DefaultElement = props => {
     return (
         <p {...props.attributes}>{props.children}</p>
@@ -49,7 +88,7 @@ const Leaf = props => {
         <span {...props.attributes} style={{
             fontWeight: props.leaf.bold ? 'bold' : 'normal',
             fontStyle: props.leaf.italics ? 'italic' : 'normal',
-            textDecoration: props.leaf.underline ? 'underline' : 'normal'
+            textDecoration: props.leaf.underline ? 'underline' : 'none'
         }}>
             {props.children}
         </span>
@@ -85,6 +124,12 @@ const App = () => {
         switch (props.element.type) {
             case 'code':
                 return <CodeElement {...props} />
+            case 'leftalign':
+                return <LeftAlign {...props} />
+            case 'middlealign':
+                return <MiddleAlign {...props} />
+            case 'rightalign':
+                return <RightAlign {...props} />
             default:
                 return <DefaultElement {...props} />
         }
@@ -130,6 +175,30 @@ const App = () => {
                     }}
                 >
                     Code Block
+                </button>
+                <button
+                    onMouseDown={event => {
+                        event.preventDefault()
+                        CustomEditor.toggleLeftAlignBlock(editor)
+                    }}
+                >
+                    Left Text Alignment
+                </button>
+                <button
+                    onMouseDown={event => {
+                        event.preventDefault()
+                        CustomEditor.toggleMiddleAlignBlock(editor)
+                    }}
+                >
+                    Middle Text Alignment
+                </button>
+                <button
+                    onMouseDown={event => {
+                        event.preventDefault()
+                        CustomEditor.togglRightAlignBlock(editor)
+                    }}
+                >
+                    Right Text Alignment
                 </button>
             </div>
             <Editable

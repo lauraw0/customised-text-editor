@@ -65,6 +65,27 @@ const CustomEditor = {
             { type: isActive ? null : 'code' },
             { match: n => Editor.isBlock(editor, n) }
         )
+    },
+    toggleLeftAlignBlock(editor) {
+        Transforms.setNodes(
+            editor,
+            { type: 'leftalign' },
+            { match: n => Editor.isBlock(editor, n) }
+        )
+    },
+    toggleMiddleAlignBlock(editor) {
+        Transforms.setNodes(
+            editor,
+            { type: 'middlealign' },
+            { match: n => Editor.isBlock(editor, n) }
+        )
+    },
+    togglRightAlignBlock(editor) {
+        Transforms.setNodes(
+            editor,
+            { type: 'rightalign' },
+            { match: n => Editor.isBlock(editor, n) }
+        )
     }
 }
 
