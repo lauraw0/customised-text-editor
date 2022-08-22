@@ -8,6 +8,13 @@ const CustomEditor = {
         })
         return !!match
     },
+    isUnderlineMarkActive(editor) {
+        const [match] = Editor.nodes(editor, {
+            match: n => n.underline === true,
+            universal: true,
+        })
+        return !!match
+    },
     isItalicsMarkActive(editor) {
         const [match] = Editor.nodes(editor, {
             match: n => n.italics === true,
@@ -29,6 +36,16 @@ const CustomEditor = {
         Transforms.setNodes(
             editor,
             { bold: isActive ? null : true },
+            { match: n => Text.isText(n), split: true }
+        )
+    },
+    toggleUnderlineMark(editor) {
+        const isActive = CustomEditor.isUnderlineMarkActive(editor)
+        // Apply it to text nodes, splitting the nodes up
+        // if selection is overlapping only a bit
+        Transforms.setNodes(
+            editor,
+            { underline: isActive ? null : true },
             { match: n => Text.isText(n), split: true }
         )
     },
