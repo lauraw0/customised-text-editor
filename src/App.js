@@ -1,7 +1,7 @@
 // Import React dependencies
 import React, { useCallback, useState, useMemo } from 'react'
 // Import the Slate editor factory, 'Editor' and 'Transforms' helpers
-import { createEditor } from 'slate'
+import { createEditor, Editor } from 'slate'
 // import { Node } from 'slate'
 import { Slate, Editable, withReact } from 'slate-react'
 import CustomEditor from './CustomEditor'
@@ -88,7 +88,8 @@ const Leaf = props => {
         <span {...props.attributes} style={{
             fontWeight: props.leaf.bold ? 'bold' : 'normal',
             fontStyle: props.leaf.italics ? 'italic' : 'normal',
-            textDecoration: props.leaf.underline ? 'underline' : 'none'
+            textDecoration: props.leaf.underline ? 'underline' : 'none',
+            align: props.leaf.align ?? 'left'
         }}>
             {props.children}
         </span>
@@ -124,12 +125,6 @@ const App = () => {
         switch (props.element.type) {
             case 'code':
                 return <CodeElement {...props} />
-            case 'leftalign':
-                return <LeftAlign {...props} />
-            case 'middlealign':
-                return <MiddleAlign {...props} />
-            case 'rightalign':
-                return <RightAlign {...props} />
             default:
                 return <DefaultElement {...props} />
         }
@@ -179,7 +174,7 @@ const App = () => {
                 <button
                     onMouseDown={event => {
                         event.preventDefault()
-                        CustomEditor.toggleLeftAlignBlock(editor)
+                        Editor.addMark(editor, "align", "left")
                     }}
                 >
                     Left Text Alignment
@@ -187,7 +182,7 @@ const App = () => {
                 <button
                     onMouseDown={event => {
                         event.preventDefault()
-                        CustomEditor.toggleMiddleAlignBlock(editor)
+                        Editor.addMark(editor, "align", "center")
                     }}
                 >
                     Middle Text Alignment
@@ -195,7 +190,7 @@ const App = () => {
                 <button
                     onMouseDown={event => {
                         event.preventDefault()
-                        CustomEditor.togglRightAlignBlock(editor)
+                        Editor.addMark(editor, "align", "right")
                     }}
                 >
                     Right Text Alignment
