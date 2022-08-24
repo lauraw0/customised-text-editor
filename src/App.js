@@ -42,41 +42,42 @@ const CodeElement = (props) => {
 const LeftAlign = (props) => {
     return (
         // attributes that will be rendered on the top-most element of your blocks
-        <pre {...props.attributes}>
+        <div {...props.attributes}>
             <div style={{
                 textAlign: 'left'
             }}>
                 {props.children}
             </div>
-        </pre>
+        </div>
     )
 }
 // Adding renderers for code blocks
 const MiddleAlign = (props) => {
     return (
         // attributes that will be rendered on the top-most element of your blocks
-        <pre {...props.attributes}>
+        <div {...props.attributes}>
             <div style={{
                 textAlign: 'center'
             }}>
                 {props.children}
             </div>
-        </pre>
+        </div>
     )
 }
-// Adding renderers for code blocks
+
 const RightAlign = (props) => {
     return (
         // attributes that will be rendered on the top-most element of your blocks
-        <pre {...props.attributes}>
+        <div {...props.attributes}>
             <div style={{
                 textAlign: 'right'
             }}>
                 {props.children}
             </div>
-        </pre>
+        </div>
     )
 }
+
 const DefaultElement = props => {
     return (
         <p {...props.attributes}>{props.children}</p>
@@ -89,7 +90,6 @@ const Leaf = props => {
             fontWeight: props.leaf.bold ? 'bold' : 'normal',
             fontStyle: props.leaf.italics ? 'italic' : 'normal',
             textDecoration: props.leaf.underline ? 'underline' : 'none',
-            align: props.leaf.align ?? 'left'
         }}>
             {props.children}
         </span>
@@ -122,11 +122,24 @@ const App = () => {
     // Rendering function based on the element passed to 'props'
     // 'useCallback' memoizes the function for subsequent renders.
     const renderElement = useCallback(props => {
+        let callComponent = { component: <DefaultElement {...props} /> }
         switch (props.element.type) {
             case 'code':
-                return <CodeElement {...props} />
+                callComponent = { component: <CodeElement {...props} /> }
+                break;
             default:
-                return <DefaultElement {...props} />
+                callComponent = { component: <DefaultElement {...props} /> }
+        }
+        // return callComponent.component;
+        switch (props.element.align) {
+            case 'left':
+                return <LeftAlign {...props}>{callComponent.component}</LeftAlign>
+            case 'center':
+                return <MiddleAlign {...props}>{callComponent.component}</MiddleAlign>
+            case 'right':
+                return <RightAlign {...props}>{callComponent.component}</RightAlign>
+            default:
+                return <LeftAlign {...props}>{callComponent.component}</LeftAlign>
         }
     }, [])
 
@@ -174,7 +187,7 @@ const App = () => {
                 <button
                     onMouseDown={event => {
                         event.preventDefault()
-                        Editor.addMark(editor, "align", "left")
+                        CustomEditor.toggleLeftAlignBlock(editor)
                     }}
                 >
                     Left Text Alignment
@@ -182,7 +195,7 @@ const App = () => {
                 <button
                     onMouseDown={event => {
                         event.preventDefault()
-                        Editor.addMark(editor, "align", "center")
+                        CustomEditor.toggleMiddleAlignBlock(editor)
                     }}
                 >
                     Middle Text Alignment
@@ -190,7 +203,7 @@ const App = () => {
                 <button
                     onMouseDown={event => {
                         event.preventDefault()
-                        Editor.addMark(editor, "align", "right")
+                        CustomEditor.toggleRightAlignBlock(editor)
                     }}
                 >
                     Right Text Alignment

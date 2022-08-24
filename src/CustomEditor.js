@@ -1,5 +1,4 @@
 import { Editor, Transforms, Text } from 'slate'
-const alignment = ["leftalign", "middlealign", "rightalign"];
 // Defining custom set of helpers rather than built-in Editor helpers
 const CustomEditor = {
     isBoldMarkActive(editor) {
@@ -30,13 +29,6 @@ const CustomEditor = {
         })
         return !!match
     },
-    // isAlignmentActive(editor) {
-    //     // Check whether any of the currently selected blocks are code blocks
-    //     const [match] = Editor.nodes(editor, {
-    //         match: n => alignment.includes(n.type),
-    //     })
-    //     return !!match
-    // },
     toggleBoldMark(editor) {
         const isActive = CustomEditor.isBoldMarkActive(editor)
         // Apply it to text nodes, splitting the nodes up
@@ -74,38 +66,27 @@ const CustomEditor = {
             { match: n => Editor.isBlock(editor, n) }
         )
     },
-    // toggleLeftAlignBlock(editor) {
-    //     const isActive = CustomEditor.isAlignmentActive(editor)
-    //     if (isActive) {
-    //         Transforms.wrapNodes(editor, {
-    //             type: 'leftalign',
-    //             children: []
-    //         });
-    //         return;
-    //     }
-    //     // Transforms.setNodes(
-    //     //     editor,
-    //     //     { type: isActive? 'leftalign' },
-    //     //     { match: n => Editor.isBlock(editor, n) }
-    //     // )
-    // },
-    // toggleMiddleAlignBlock(editor) {
-    //     const isActive = CustomEditor.isAlignmentActive(editor)
-    //     if (isActive) {
-    //         Transforms.wrapNodes(editor, {
-    //             type: 'middlealign',
-    //             children: []
-    //         });
-    //         return;
-    //     }
-    // },
-    // togglRightAlignBlock(editor) {
-    //     Transforms.setNodes(
-    //         editor,
-    //         { type: 'rightalign' },
-    //         { match: n => Editor.isBlock(editor, n) }
-    //     )
-    // }
+    toggleLeftAlignBlock(editor) {
+        Transforms.setNodes(
+            editor,
+            { align: 'left' },
+            { match: n => Editor.isBlock(editor, n) }
+        )
+    },
+    toggleMiddleAlignBlock(editor) {
+        Transforms.setNodes(
+            editor,
+            { align: 'center' },
+            { match: n => Editor.isBlock(editor, n) }
+        )
+    },
+    toggleRightAlignBlock(editor) {
+        Transforms.setNodes(
+            editor,
+            { align: 'right' },
+            { match: n => Editor.isBlock(editor, n) }
+        )
+    }
 }
 
 export default CustomEditor;
